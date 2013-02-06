@@ -35,7 +35,7 @@ template File.join("/etc/logrotate.d", node['mongodb']['config']['nodename']) do
   })
 end
 
-template File.join(node['mongodb']['etc_dir'], "#{node['mongodb']['config']['nodename']}.conf") do
+template File.join(node['mongodb']['etc_dir'], "#{node['mongodb']['nodename']}.conf") do
   source "mongodb_config.conf.erb"
   owner "mongodb"
   group "mongodb"
