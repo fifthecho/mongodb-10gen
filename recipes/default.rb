@@ -75,10 +75,10 @@ if platform_family?("rhel")
     group "root"
     mode "0644"
     content "[10gen]
-      name=10gen Repository
-      baseurl=http://downloads-distro.mongodb.org/repo/redhat/os/#{arch}
-      gpgcheck=0
-      enabled=1"
+name=10gen Repository
+baseurl=http://downloads-distro.mongodb.org/repo/redhat/os/#{arch}
+gpgcheck=0
+enabled=1"
   end
 
   package "mongo-10gen" do
