@@ -69,8 +69,7 @@ end
 
 if platform_family?("rhel")
   arch = node['kernel']['machine'] =~ /x86_64/ ? "x86_64" : "i386"
-  f
-  ile "/etc/yum.repos.d/10gen.repo" do
+  file "/etc/yum.repos.d/10gen.repo" do
     action :create_if_missing
     owner "root"
     group "root"
