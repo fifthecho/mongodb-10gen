@@ -69,7 +69,8 @@ end
 
 if platform_family?("rhel")
   arch = node['kernel']['machine'] =~ /x86_64/ ? "x86_64" : "i386"
-  file "/etc/yum.repos.d/10gen.repo" do
+  f
+  ile "/etc/yum.repos.d/10gen.repo" do
     action :create_if_missing
     owner "root"
     group "root"
@@ -81,14 +82,14 @@ if platform_family?("rhel")
       enabled=1"
   end
 
-  package "mongo-10gen"
+  package "mongo-10gen" do
     action :install
   end
 
-  package "mongo-10gen-server"
+  package "mongo-10gen-server" do
     action :install
   end
-  
+
 end
 
 
