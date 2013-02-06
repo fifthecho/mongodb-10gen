@@ -81,6 +81,12 @@ gpgcheck=0
 enabled=1"
   end
 
+  user "mongodb" do
+    action :create
+    uid 400
+    gid 400
+  end
+
   package "mongo-10gen" do
     action :install
   end
