@@ -23,48 +23,75 @@
 ## OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 ## WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+if platform_family?("debian")
+  include_recipe "apt"
 
-include_recipe "apt"
-
-apt_repository "mongodb-10gen" do
-  case node["platform"]
-  when "ubuntu"
-    uri "http://downloads-distro.mongodb.org/repo/ubuntu-upstart"
-  when "debian"
-    uri "http://downloads-distro.mongodb.org/repo/debian-sysvinit"
+  apt_repository "mongodb-10gen" do
+    case node["platform"]
+    when "ubuntu"
+      uri "http://downloads-distro.mongodb.org/repo/ubuntu-upstart"
+    when "debian"
+      uri "http://downloads-distro.mongodb.org/repo/debian-sysvinit"
+    end
+    distribution "dist"
+    components ["10gen"]
+    keyserver "keyserver.ubuntu.com"
+    key "7F0CEB10"
   end
-  distribution "dist"
-  components ["10gen"]
-  keyserver "keyserver.ubuntu.com"
-  key "7F0CEB10"
-end
 
-file "/etc/default/mongodb" do
-  action :create_if_missing
-  owner "root"
-  content "ENABLE_MONGODB=no"
-end
-
-# cookbook apt has bug ?
-# apt-get update notifies does not work.
-# here is work around.
-if node['chef_packages']['chef']['version'] < "10"
-  execute "apt-get update" do
-    command "apt-get update"
-    ignore_failure true
-    action :run
-  end
-   
-  file "/etc/apt/sources.list.d/mongodb-10gen.update-once.list" do
+  file "/etc/default/mongodb" do
     action :create_if_missing
-    # notifies :run, resources(:execute => "apt-get-update"), :immediately
-    notifies :run, "execute[apt-get-update]", :immediately
+    owner "root"
+    content "ENABLE_MONGODB=no"
+  end
+
+  # cookbook apt has bug ?
+  # apt-get update notifies does not work.
+  # here is work around.
+  if node['chef_packages']['chef']['version'] < "10"
+    execute "apt-get update" do
+      command "apt-get update"
+      ignore_failure true
+      action :run
+    end
+     
+    file "/etc/apt/sources.list.d/mongodb-10gen.update-once.list" do
+      action :create_if_missing
+      # notifies :run, resources(:execute => "apt-get-update"), :immediately
+      notifies :run, "execute[apt-get-update]", :immediately
+    end
+  end
+
+  package node['mongodb']['package'] do
+    action :install
   end
 end
 
-package node['mongodb']['package'] do
-  action :install
+if platform_family?("rhel")
+  arch = node['kernel']['machine'] =~ /x86_64/ ? "x86_64" : "i386"
+  file "/etc/yum.repos.d/10gen.repo" do
+    action :create_if_missing
+    owner "root"
+    group "root"
+    mode "0644"
+    content "[10gen]
+      name=10gen Repository
+      baseurl=http://downloads-distro.mongodb.org/repo/redhat/os/#{arch}
+      gpgcheck=0
+      enabled=1"
+  end
+
+  package "mongo-10gen"
+    action :install
+  end
+
+  package "mongo-10gen-server"
+    action :install
+  end
+  
 end
+
+
 
 directory "/data" do
   group "root"
