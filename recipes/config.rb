@@ -47,14 +47,21 @@ template File.join(node['mongodb']['etc_dir'], "#{node['mongodb']['config']['nod
   notifies :restart, "service[#{node['mongodb']['config']['nodename']}]"
 end
 
-
-service node['mongodb']['config']['nodename'] do
-  case node['platform']
-  when "ubuntu"
-    if node['platform_version'].to_f >= 9.10
-      provider Chef::Provider::Service::Upstart
+if platform_family?("debian")
+  service node['mongodb']['config']['nodename'] do
+    case node['platform']
+    when "ubuntu"
+      if node['platform_version'].to_f >= 9.10
+        provider Chef::Provider::Service::Upstart
+      end
     end
+    action [:enable, :start]
   end
-  action [:enable, :start]
+end
+
+if platform_family?("rhel")
+  service "mongod" do
+    action [:enable, :start]
+  end
 end
 
