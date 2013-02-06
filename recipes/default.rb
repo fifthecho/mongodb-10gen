@@ -81,6 +81,12 @@ gpgcheck=0
 enabled=1"
   end
 
+  group "mongodb" do
+    action :create
+    gid 400
+  end
+  
+
   user "mongodb" do
     action :create
     uid 400
